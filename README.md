@@ -21,12 +21,44 @@ A robust, Go-based API testing tool designed to verify connectivity, authenticat
 
 ## Installation
 
+### Option 1: Download Pre-built Binary (Recommended)
+
+Download the latest release for your platform from the [Releases](https://github.com/hutstep/entra-id-api-tester/releases) page.
+
+Available for:
+
+- **Linux**: amd64, arm64, armv6, armv7
+- **macOS**: amd64 (Intel), arm64 (Apple Silicon)
+- **Windows**: amd64
+
+**Quick install:**
+
+```bash
+# macOS/Linux - download and install
+curl -L https://github.com/hutstep/entra-id-api-tester/releases/latest/download/entra-id-api-tester_$(uname -s)_$(uname -m).tar.gz | tar xz
+sudo mv api-tester /usr/local/bin/
+```
+
+### Option 2: Install with Go
+
+```bash
+go install github.com/hutstep/entra-id-api-tester/cmd/api-tester@latest
+```
+
+### Option 3: Build from Source
+
 1. Clone or download this repository
 2. Navigate to the project directory
 3. Install dependencies:
 
 ```bash
 go mod download
+```
+
+4. Build:
+
+```bash
+go build -o api-tester ./cmd/api-tester
 ```
 
 ## Configuration
@@ -109,6 +141,7 @@ go build -o api-tester ./cmd/api-tester
 
 - `-config`: Path to configuration file (default: `config.json`)
 - `-verbose`: Enable verbose output showing detailed test steps
+- `-version`: Print version information and exit
 
 ## Example Output
 
@@ -260,17 +293,30 @@ Contributions are welcome! Here are some ways you can contribute:
 - Docker container support
 - CI/CD pipeline examples
 
-## CI/CD
+## CI/CD & Releases
 
-This project uses GitHub Actions for continuous integration:
+This project uses GitHub Actions for continuous integration and automated releases:
 
-- **Lint**: Code formatting (gofmt), go vet, staticcheck, golangci-lint
-- **Test**: Unit tests with race detector across Go 1.24 and 1.25
+### PR Validation
+
+- **Lint**: Code formatting (gofmt), go vet, golangci-lint
+- **Test**: Unit tests with race detector on Go 1.25
 - **Build**: Cross-platform builds (Linux, macOS, Windows)
 - **Security**: Gosec security scanner and govulncheck vulnerability checks
-- **Coverage**: Automatic coverage reports uploaded as artifacts
+- **Dependency Review**: Checks for vulnerable dependencies
 
 All checks must pass before PRs can be merged.
+
+### Automated Releases
+
+Releases are automated using [GoReleaser](https://goreleaser.com/) and [Conventional Commits](https://www.conventionalcommits.org/):
+
+- **On merge to main**: Version is calculated from commit messages
+- **Semantic versioning**: Based on commit types (feat, fix, etc.)
+- **Multi-platform builds**: Automatic binaries for all platforms
+- **GitHub Releases**: Changelog and assets auto-generated
+
+**For contributors:** See [RELEASE.md](RELEASE.md) for commit message guidelines and release process details.
 
 ## License
 

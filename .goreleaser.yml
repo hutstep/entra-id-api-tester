@@ -1,0 +1,145 @@
+# GoReleaser configuration for entra-id-api-tester
+# https://goreleaser.com
+
+version: 2
+
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # you may remove this if you don't need go generate
+    - go generate ./...
+
+builds:
+  - id: api-tester
+    main: ./cmd/api-tester
+    binary: api-tester
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+      - arm
+    goarm:
+      - "6"
+      - "7"
+    ignore:
+      - goos: windows
+        goarch: arm
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -X main.builtBy=goreleaser
+
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    files:
+      - README.md
+      - LICENSE
+      - QUICKSTART.md
+      - config.example.json
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+      - "^style:"
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: "New Features"
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Bug Fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: "Performance Improvements"
+      regexp: "^.*perf[(\\w)]*:+.*$"
+      order: 2
+    - title: "Other Changes"
+      order: 999
+
+release:
+  github:
+    owner: hutstep
+    name: entra-id-api-tester
+  draft: false
+  prerelease: auto
+  mode: append
+  header: |
+    ## Release {{.Tag}}
+
+    This release was automatically created by [GoReleaser](https://goreleaser.com).
+
+  footer: |
+    ## Installation
+
+    ### Binary (Cross-platform)
+    Download the pre-compiled binaries from the assets section.
+
+    ### Homebrew (macOS/Linux)
+    ```bash
+    # Coming soon
+    ```
+
+    ### Go Install
+    ```bash
+    go install github.com/hutstep/entra-id-api-tester/cmd/api-tester@{{.Tag}}
+    ```
+
+    **Full Changelog**: https://github.com/hutstep/entra-id-api-tester/compare/{{.PreviousTag}}...{{.Tag}}
+
+# Announce the release on social media, etc.
+# announce:
+#   skip: false
+
+# Uncomment if you want to publish to Homebrew
+# brews:
+#   - name: api-tester
+#     repository:
+#       owner: hutstep
+#       name: homebrew-tap
+#     folder: Formula
+#     homepage: https://github.com/hutstep/entra-id-api-tester
+#     description: Test Azure-protected API endpoints using Microsoft Entra ID authentication
+#     license: MIT
+#     test: |
+#       system "#{bin}/api-tester", "--version"
+#     install: |
+#       bin.install "api-tester"
+
+# Uncomment if you want to build Docker images
+# dockers:
+#   - image_templates:
+#       - "ghcr.io/hutstep/{{.ProjectName}}:{{ .Tag }}"
+#       - "ghcr.io/hutstep/{{.ProjectName}}:latest"
+#     dockerfile: Dockerfile
+#     build_flag_templates:
+#       - "--label=org.opencontainers.image.created={{.Date}}"
+#       - "--label=org.opencontainers.image.title={{.ProjectName}}"
+#       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+#       - "--label=org.opencontainers.image.version={{.Version}}"
