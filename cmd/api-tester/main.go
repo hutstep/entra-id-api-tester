@@ -17,6 +17,14 @@ const (
 	defaultConfigPath = "config.json"
 )
 
+// Version information (set by GoReleaser)
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+	builtBy = "unknown"
+)
+
 // TestResult represents the result of testing an endpoint
 type TestResult struct {
 	EndpointName    string
@@ -33,7 +41,17 @@ func main() {
 	// Parse command-line flags
 	configPath := flag.String("config", defaultConfigPath, "Path to configuration file")
 	verbose := flag.Bool("verbose", false, "Enable verbose output")
+	versionFlag := flag.Bool("version", false, "Print version information")
 	flag.Parse()
+
+	// Print version and exit if requested
+	if *versionFlag {
+		fmt.Printf("api-tester %s\n", version)
+		fmt.Printf("  commit: %s\n", commit)
+		fmt.Printf("  built at: %s\n", date)
+		fmt.Printf("  built by: %s\n", builtBy)
+		os.Exit(0)
+	}
 
 	// Load configuration
 	cfg, err := config.LoadConfig(*configPath)

@@ -1,0 +1,165 @@
+name: Release
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: write
+    pull-requests: write
+    issues: write
+    security-events: write # For security scans
+
+jobs:
+    validate:
+        name: Validate
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Set up Go
+              uses: actions/setup-go@v5
+              with:
+                  go-version: "1.25"
+                  cache: true
+
+            - name: Run go fmt
+              run: |
+                  if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+                    echo "The following files are not formatted:"
+                    gofmt -s -l .
+                    exit 1
+                  fi
+
+            - name: Run go vet
+              run: go vet ./...
+
+            - name: Run golangci-lint
+              uses: golangci/golangci-lint-action@v8
+              with:
+                  version: latest
+                  args: --timeout=5m
+
+            - name: Run tests
+              run: go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+
+            - name: Run Gosec Security Scanner
+              uses: securego/gosec@master
+              with:
+                  args: "-no-fail -fmt sarif -out results.sarif ./..."
+
+            - name: Upload SARIF file
+              uses: github/codeql-action/upload-sarif@v3
+              with:
+                  sarif_file: results.sarif
+
+            - name: Install govulncheck
+              run: go install golang.org/x/vuln/cmd/govulncheck@latest
+
+            - name: Run govulncheck
+              run: govulncheck ./...
+
+    release:
+        name: Release
+        runs-on: ubuntu-latest
+        needs: validate
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  persist-credentials: false
+
+            - name: Set up Go
+              uses: actions/setup-go@v5
+              with:
+                  go-version: "1.25"
+                  cache: true
+
+            - name: Get Next Version
+              id: semver
+              uses: ietf-tools/semver-action@v1
+              with:
+                  token: ${{ github.token }}
+                  branch: main
+                  patchList: fix, perf, refactor
+                  noVersionBumpBehavior: current
+
+            - name: Create Tag and Release
+              if: steps.semver.outputs.next != ''
+              uses: actions/github-script@v7
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const tag = 'v${{ steps.semver.outputs.next }}';
+
+                      // Check if tag already exists
+                      try {
+                        await github.rest.git.getRef({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          ref: `tags/${tag}`
+                        });
+                        console.log(`Tag ${tag} already exists, skipping release`);
+                        core.setOutput('skip', 'true');
+                        process.exit(0);
+                      } catch (error) {
+                        if (error.status !== 404) {
+                          throw error;
+                        }
+                      }
+
+                      // Create the tag
+                      await github.rest.git.createRef({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        ref: `refs/tags/${tag}`,
+                        sha: context.sha
+                      });
+
+                      console.log(`Created tag ${tag}`);
+
+            - name: Run GoReleaser
+              if: steps.semver.outputs.next != ''
+              uses: goreleaser/goreleaser-action@v6
+              with:
+                  distribution: goreleaser
+                  version: "~> v2"
+                  args: release --clean
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Release Summary
+              if: steps.semver.outputs.next != ''
+              uses: actions/github-script@v7
+              with:
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  script: |
+                      const tag = 'v${{ steps.semver.outputs.next }}';
+
+                      try {
+                        const { data: release } = await github.rest.repos.getReleaseByTag({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          tag: tag
+                        });
+                        
+                        core.summary
+                          .addHeading('Release Summary')
+                          .addRaw('✅ Release completed successfully!', true)
+                          .addBreak()
+                          .addRaw(`**Version:** ${tag}`, true)
+                          .addBreak()
+                          .addLink('View Release', release.html_url);
+                        
+                        await core.summary.write();
+                        
+                        console.log(`Release ${tag} created successfully!`);
+                        console.log(`Release URL: ${release.html_url}`);
+                      } catch (error) {
+                        console.log('Release may still be processing or tag was already created');
+                      }
