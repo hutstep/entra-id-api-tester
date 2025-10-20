@@ -94,7 +94,7 @@ Test the build process without creating a release:
 goreleaser build --snapshot --clean
 ```
 
-This creates binaries in `./dist/` directory.
+This creates binaries in `./dist/` directory (ignored by git).
 
 ### Local Release (No Push)
 
