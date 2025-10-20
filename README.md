@@ -350,6 +350,16 @@ go test -v -race -coverprofile=coverage.out ./...
 go build -o api-tester ./cmd/api-tester
 ```
 
+## Dependency Management
+
+This project uses [Dependabot](.github/DEPENDABOT.md) to automatically keep dependencies up to date:
+
+- **Go modules**: Weekly updates for Azure SDK and other dependencies
+- **GitHub Actions**: Weekly updates for CI/CD workflows
+- **Security alerts**: Immediate notifications for vulnerable dependencies
+
+Dependabot creates PRs automatically which are validated by CI before merging.
+
 ## Support
 
 For issues, questions, or contributions, please open an issue on GitHub.
@@ -359,3 +369,4 @@ For issues, questions, or contributions, please open an issue on GitHub.
 - [Azure Identity SDK for Go](https://pkg.go.dev/github.com/Azure/azure-sdk-for-go/sdk/azidentity)
 - [Microsoft Entra ID Authentication](https://learn.microsoft.com/en-us/azure/developer/go/sdk/authentication/authentication-overview)
 - [OAuth 2.0 Client Credentials Flow](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow)
+- [Dependabot Configuration](.github/DEPENDABOT.md)
