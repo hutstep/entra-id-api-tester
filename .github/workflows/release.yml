@@ -89,8 +89,25 @@ jobs:
           patchList: fix, perf, refactor
           noVersionBumpBehavior: current
 
+      - name: Check if Version Changed
+        id: version_check
+        run: |
+          CURRENT="${{ steps.semver.outputs.current }}"
+          NEXT="${{ steps.semver.outputs.next }}"
+
+          echo "Current version: $CURRENT"
+          echo "Next version: $NEXT"
+
+          if [ "$CURRENT" = "$NEXT" ]; then
+            echo "No version bump needed - skipping release"
+            echo "should_release=false" >> $GITHUB_OUTPUT
+          else
+            echo "Version changed - proceeding with release"
+            echo "should_release=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Prepare Release Version
-        if: steps.semver.outputs.next != ''
+        if: steps.version_check.outputs.should_release == 'true'
         id: version
         run: |
           # Ensure version has 'v' prefix
@@ -102,7 +119,7 @@ jobs:
           echo "Release version: $VERSION"
 
       - name: Create Git Tag
-        if: steps.semver.outputs.next != ''
+        if: steps.version_check.outputs.should_release == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -112,7 +129,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run GoReleaser
-        if: steps.semver.outputs.next != ''
+        if: steps.version_check.outputs.should_release == 'true'
         uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
@@ -123,7 +140,7 @@ jobs:
           GORELEASER_CURRENT_TAG: ${{ steps.version.outputs.tag }}
 
       - name: Release Summary
-        if: steps.semver.outputs.next != ''
+        if: steps.version_check.outputs.should_release == 'true'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -153,3 +170,10 @@ jobs:
               console.log('Release may still be processing or tag was already created');
               console.log(`Error: ${error.message}`);
             }
+
+      - name: No Release Summary
+        if: steps.version_check.outputs.should_release == 'false'
+        run: |
+          echo "ℹ️  No version bump required - skipping release"
+          echo "Current version: ${{ steps.semver.outputs.current }}"
+          echo "No conventional commits found that require a version bump"
