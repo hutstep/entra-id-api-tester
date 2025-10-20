@@ -1,4 +1,4 @@
-module github.com/hutstep/api-tester
+module github.com/hutstep/entra-id-api-tester
 
 go 1.23
 

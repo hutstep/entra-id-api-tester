@@ -32,7 +32,7 @@ Testing multiple API endpoints (potentially across different environments/stages
 ### Package Structure
 
 ```
-github.com/hutstep/api-tester/
+github.com/hutstep/entra-id-api-tester/
 ├── cmd/api-tester/              # Main application
 │   └── main.go                  # Entry point, CLI, orchestration
 ├── internal/                    # Private packages
@@ -290,7 +290,7 @@ type EntraIDTokenProvider struct { ... }
 
 ### `go.mod`
 
-**Module name:** `github.com/hutstep/api-tester`  
+**Module name:** `github.com/hutstep/entra-id-api-tester`  
 **Note:** This is the import path, not necessarily where the code lives
 
 ### `Makefile`

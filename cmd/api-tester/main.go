@@ -8,9 +8,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/hutstep/api-tester/internal/auth"
-	"github.com/hutstep/api-tester/internal/client"
-	"github.com/hutstep/api-tester/internal/config"
+	"github.com/hutstep/entra-id-api-tester/internal/auth"
+	"github.com/hutstep/entra-id-api-tester/internal/client"
+	"github.com/hutstep/entra-id-api-tester/internal/config"
 )
 
 const (
