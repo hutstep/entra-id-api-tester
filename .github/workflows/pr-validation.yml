@@ -9,6 +9,7 @@ on:
 permissions:
     contents: read
     pull-requests: write
+    security-events: write # For SARIF uploads (GitHub Advanced Security)
 
 jobs:
     lint:
@@ -75,21 +76,18 @@ jobs:
             - name: Generate coverage report
               run: go tool cover -html=coverage.out -o coverage.html
 
-            - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v4
-              with:
-                  file: ./coverage.out
-                  flags: unittests
-                  name: codecov-umbrella
-                  fail_ci_if_error: false
-              env:
-                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+            - name: Display coverage summary
+              run: |
+                  echo "## Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
+                  go tool cover -func=coverage.out >> $GITHUB_STEP_SUMMARY
 
             - name: Archive coverage report
               uses: actions/upload-artifact@v4
               with:
                   name: coverage-report-go-${{ matrix.go-version }}
-                  path: coverage.html
+                  path: |
+                      coverage.out
+                      coverage.html
                   retention-days: 30
 
     build:
