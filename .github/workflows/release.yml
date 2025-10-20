@@ -88,47 +88,19 @@ jobs:
           branch: main
           patchList: fix, perf, refactor
           noVersionBumpBehavior: current
-          fallbackTag: "0.0.0"
+          fallbackTag: "v0.0.0"
 
-      - name: Create Tag and Release
+      - name: Prepare Release Version
         if: steps.semver.outputs.next != ''
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            // semver-action returns version with or without 'v' prefix
-            // Ensure we have exactly one 'v' prefix
-            const nextVersion = '${{ steps.semver.outputs.next }}';
-            const tag = nextVersion.startsWith('v') ? nextVersion : `v${nextVersion}`;
-
-            console.log(`Next version from semver: ${nextVersion}`);
-            console.log(`Tag to create: ${tag}`);
-
-            // Check if tag already exists
-            try {
-              await github.rest.git.getRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: `tags/${tag}`
-              });
-              console.log(`Tag ${tag} already exists, skipping release`);
-              core.setOutput('skip', 'true');
-              process.exit(0);
-            } catch (error) {
-              if (error.status !== 404) {
-                throw error;
-              }
-            }
-
-            // Create the tag
-            await github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/tags/${tag}`,
-              sha: context.sha
-            });
-
-            console.log(`Created tag ${tag} at commit ${context.sha}`);
+        id: version
+        run: |
+          # Ensure version has 'v' prefix
+          VERSION="${{ steps.semver.outputs.next }}"
+          if [[ ! "$VERSION" =~ ^v ]]; then
+            VERSION="v$VERSION"
+          fi
+          echo "tag=$VERSION" >> $GITHUB_OUTPUT
+          echo "Release version: $VERSION"
 
       - name: Run GoReleaser
         if: steps.semver.outputs.next != ''
@@ -139,6 +111,7 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: ${{ steps.version.outputs.tag }}
 
       - name: Release Summary
         if: steps.semver.outputs.next != ''
@@ -146,9 +119,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            // Ensure we have exactly one 'v' prefix
-            const nextVersion = '${{ steps.semver.outputs.next }}';
-            const tag = nextVersion.startsWith('v') ? nextVersion : `v${nextVersion}`;
+            const tag = '${{ steps.version.outputs.tag }}';
 
             try {
               const { data: release } = await github.rest.repos.getReleaseByTag({
