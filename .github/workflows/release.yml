@@ -88,7 +88,6 @@ jobs:
           branch: main
           patchList: fix, perf, refactor
           noVersionBumpBehavior: current
-          fallbackTag: "v0.0.0"
 
       - name: Prepare Release Version
         if: steps.semver.outputs.next != ''
