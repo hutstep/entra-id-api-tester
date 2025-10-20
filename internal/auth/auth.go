@@ -1,3 +1,6 @@
+// Package auth provides authentication functionality for Microsoft Entra ID
+// using the Azure Identity SDK. It implements OAuth 2.0 client credentials
+// flow for service-to-service authentication.
 package auth
 
 import (

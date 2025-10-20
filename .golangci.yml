@@ -1,0 +1,81 @@
+# golangci-lint configuration
+# https://golangci-lint.run/usage/configuration/
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+  modules-download-mode: readonly
+
+linters:
+  default: none
+  enable:
+    - errcheck # Check for unchecked errors
+    - govet # Reports suspicious constructs
+    - ineffassign # Detect ineffectual assignments
+    - staticcheck # Advanced Go linting (includes gosimple, stylecheck, unused)
+    - misspell # Find commonly misspelled words
+    - gocritic # Comprehensive Go source code linter
+    - revive # Fast, configurable, extensible, flexible, and beautiful linter
+    - gosec # Security-focused linter
+    - unconvert # Remove unnecessary type conversions
+    - unparam # Report unused function parameters
+    - prealloc # Find slice declarations that could potentially be preallocated
+    - errorlint # Find misuses of errors
+
+  settings:
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+
+    govet:
+      enable-all: true
+
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - style
+        - performance
+        - experimental
+        - opinionated
+
+    revive:
+      severity: warning
+      rules:
+        - name: exported
+          severity: warning
+        - name: unexported-return
+          disabled: true
+        - name: package-comments
+          disabled: true
+
+    gosec:
+      excludes:
+        - G104 # Audit errors not checked (we use errcheck for this)
+      severity: medium
+      confidence: medium
+
+    staticcheck:
+      checks: ["all"]
+
+  exclusions:
+    # Exclude some linters from running on test files
+    rules:
+      - path: '_test\.go'
+        linters:
+          - gosec
+          - errcheck
+          - gocritic
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+formatters:
+  enable:
+    - gofmt # Check formatting
+    - goimports # Check imports
+
+  settings:
+    gofmt:
+      simplify: true

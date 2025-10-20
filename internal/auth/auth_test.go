@@ -8,8 +8,8 @@ import (
 
 // MockTokenProvider is a mock implementation of TokenProvider for testing
 type MockTokenProvider struct {
-	TokenToReturn string
 	ErrorToReturn error
+	TokenToReturn string
 }
 
 func (m *MockTokenProvider) GetAccessToken(ctx context.Context, clientID, clientSecret, tenantID, scope string) (string, error) {

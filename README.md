@@ -260,9 +260,53 @@ Contributions are welcome! Here are some ways you can contribute:
 - Docker container support
 - CI/CD pipeline examples
 
+## CI/CD
+
+This project uses GitHub Actions for continuous integration:
+
+- **Lint**: Code formatting (gofmt), go vet, staticcheck, golangci-lint
+- **Test**: Unit tests with race detector across Go 1.22 and 1.23
+- **Build**: Cross-platform builds (Linux, macOS, Windows)
+- **Security**: Gosec security scanner and govulncheck vulnerability checks
+- **Coverage**: Automatic coverage reports uploaded as artifacts
+
+All checks must pass before PRs can be merged.
+
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Development Guidelines
+
+1. Follow Go best practices and idioms
+2. Write tests for new features
+3. Ensure all tests pass before submitting PR
+4. Update documentation as needed
+5. Run `go fmt ./...` and `go vet ./...` before committing
+
+### Running CI Checks Locally
+
+```bash
+# Format code
+go fmt ./...
+
+# Lint
+go vet ./...
+
+# Run tests with coverage
+go test -v -race -coverprofile=coverage.out ./...
+
+# Build
+go build -o api-tester ./cmd/api-tester
+```
+
+## Support
+
+For issues, questions, or contributions, please open an issue on GitHub.
 
 ## Related Documentation
 

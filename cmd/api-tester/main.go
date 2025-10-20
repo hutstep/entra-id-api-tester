@@ -20,13 +20,13 @@ const (
 // TestResult represents the result of testing an endpoint
 type TestResult struct {
 	EndpointName    string
+	ErrorMessage    string
+	Duration        time.Duration
+	StatusCode      int
 	Success         bool
 	AuthSuccess     bool
 	ConnectSuccess  bool
 	ResponseSuccess bool
-	StatusCode      int
-	ErrorMessage    string
-	Duration        time.Duration
 }
 
 func main() {
@@ -50,7 +50,8 @@ func main() {
 
 	// Test each endpoint
 	results := make([]TestResult, 0, len(cfg.Endpoints))
-	for i, endpoint := range cfg.Endpoints {
+	for i := range cfg.Endpoints {
+		endpoint := &cfg.Endpoints[i]
 		fmt.Printf("\n[%d/%d] Testing: %s\n", i+1, len(cfg.Endpoints), endpoint.Name)
 		fmt.Printf("    URL: %s\n", endpoint.URL)
 		fmt.Printf("    Method: %s\n", endpoint.Method)
@@ -58,7 +59,7 @@ func main() {
 		result := testEndpoint(context.Background(), endpoint, tokenProvider, apiClient, *verbose)
 		results = append(results, result)
 
-		printTestResult(result, *verbose)
+		printTestResult(result)
 	}
 
 	// Print summary
@@ -72,7 +73,7 @@ func main() {
 }
 
 // testEndpoint tests a single endpoint
-func testEndpoint(ctx context.Context, endpoint config.Endpoint, tokenProvider auth.TokenProvider, apiClient *client.APIClient, verbose bool) TestResult {
+func testEndpoint(ctx context.Context, endpoint *config.Endpoint, tokenProvider auth.TokenProvider, apiClient *client.APIClient, verbose bool) TestResult {
 	result := TestResult{
 		EndpointName: endpoint.Name,
 	}
@@ -131,7 +132,7 @@ func testEndpoint(ctx context.Context, endpoint config.Endpoint, tokenProvider a
 }
 
 // printTestResult prints the result of a single test
-func printTestResult(result TestResult, verbose bool) {
+func printTestResult(result TestResult) {
 	if result.Success {
 		fmt.Printf("    ✓ PASS - All checks passed (Duration: %v)\n", result.Duration)
 	} else {
@@ -162,11 +163,12 @@ func printSummary(results []TestResult) {
 		if result.Success {
 			passed++
 		} else {
-			if !result.AuthSuccess {
+			switch {
+			case !result.AuthSuccess:
 				authFailed++
-			} else if !result.ConnectSuccess {
+			case !result.ConnectSuccess:
 				connectFailed++
-			} else {
+			default:
 				responseFailed++
 			}
 		}

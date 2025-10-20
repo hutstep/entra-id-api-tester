@@ -1,3 +1,6 @@
+// Package client provides HTTP client functionality for making API requests
+// with Bearer token authentication. It supports all standard HTTP methods
+// (GET, POST, PUT, PATCH, DELETE) and includes response parsing utilities.
 package client
 
 import (
@@ -51,9 +54,9 @@ func NewAPIClientWithHTTPClient(httpClient HTTPClient, timeout time.Duration) *A
 
 // Response represents an API response
 type Response struct {
-	StatusCode int
-	Body       []byte
 	Headers    http.Header
+	Body       []byte
+	StatusCode int
 }
 
 // CallAPI makes an HTTP request to the specified endpoint
@@ -89,7 +92,12 @@ func (c *APIClient) CallAPI(ctx context.Context, method, url, accessToken string
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			// Log error but don't override the main error
+			_ = closeErr
+		}
+	}()
 
 	// Read response body
 	body, err := io.ReadAll(resp.Body)
