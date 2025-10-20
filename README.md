@@ -15,7 +15,7 @@ A robust, Go-based API testing tool designed to verify connectivity, authenticat
 
 ## Prerequisites
 
-- Go 1.23 or higher
+- Go 1.25 or higher
 - Azure service principal credentials (Client ID, Client Secret, Tenant ID)
 - Access to the APIs you want to test
 
@@ -265,7 +265,7 @@ Contributions are welcome! Here are some ways you can contribute:
 This project uses GitHub Actions for continuous integration:
 
 - **Lint**: Code formatting (gofmt), go vet, staticcheck, golangci-lint
-- **Test**: Unit tests with race detector across Go 1.22 and 1.23
+- **Test**: Unit tests with race detector across Go 1.24 and 1.25
 - **Build**: Cross-platform builds (Linux, macOS, Windows)
 - **Security**: Gosec security scanner and govulncheck vulnerability checks
 - **Coverage**: Automatic coverage reports uploaded as artifacts

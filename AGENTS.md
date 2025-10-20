@@ -3,7 +3,7 @@
 ## Project Overview
 
 **Project Name:** API Tester (Go)  
-**Language:** Go 1.23  
+**Language:** Go 1.25  
 **Purpose:** Test Azure-protected API endpoints using Microsoft Entra ID authentication  
 **Created:** October 2025
 
@@ -601,13 +601,13 @@ Refer to these sections:
 
 **Original Author:** Created via AI assistance  
 **Date:** October 2025  
-**Language:** Go 1.23  
+**Language:** Go 1.25  
 **Azure SDK Version:** azidentity v1.8.0, azcore v1.16.0
 
 **Maintenance Notes:**
 
 - Azure SDK is actively maintained by Microsoft
-- Go 1.23 is current as of October 2025
+- Go 1.25 is current as of October 2025
 - No external dependencies beyond Azure SDK
 - Tests ensure reliability across updates
 

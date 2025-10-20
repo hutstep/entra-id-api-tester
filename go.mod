@@ -1,6 +1,6 @@
 module github.com/hutstep/entra-id-api-tester
 
-go 1.23
+go 1.25
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.16.0
