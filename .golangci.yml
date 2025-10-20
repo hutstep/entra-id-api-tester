@@ -8,23 +8,23 @@ run:
 
 linters:
   enable:
-    - errcheck      # Check for unchecked errors
-    - gosimple      # Simplify code
-    - govet         # Reports suspicious constructs
-    - ineffassign   # Detect ineffectual assignments
-    - staticcheck   # Advanced Go linting
-    - unused        # Check for unused constants, variables, functions and types
-    - gofmt         # Check formatting
-    - goimports     # Check imports
-    - misspell      # Find commonly misspelled words
-    - gocritic      # Comprehensive Go source code linter
-    - revive        # Fast, configurable, extensible, flexible, and beautiful linter
-    - gosec         # Security-focused linter
-    - unconvert     # Remove unnecessary type conversions
-    - unparam       # Report unused function parameters
-    - prealloc      # Find slice declarations that could potentially be preallocated
+    - errcheck # Check for unchecked errors
+    - gosimple # Simplify code
+    - govet # Reports suspicious constructs
+    - ineffassign # Detect ineffectual assignments
+    - staticcheck # Advanced Go linting
+    - unused # Check for unused constants, variables, functions and types
+    - gofmt # Check formatting
+    - goimports # Check imports
+    - misspell # Find commonly misspelled words
+    - gocritic # Comprehensive Go source code linter
+    - revive # Fast, configurable, extensible, flexible, and beautiful linter
+    - gosec # Security-focused linter
+    - unconvert # Remove unnecessary type conversions
+    - unparam # Report unused function parameters
+    - prealloc # Find slice declarations that could potentially be preallocated
     - exportloopref # Check for pointers to enclosing loop variables
-    - errorlint     # Find misuses of errors
+    - errorlint # Find misuses of errors
 
 linters-settings:
   errcheck:
