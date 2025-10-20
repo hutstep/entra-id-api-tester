@@ -1,3 +1,6 @@
+// Package config handles loading and validation of API testing configuration
+// from JSON files. It defines the structure for endpoints, credentials, and
+// request parameters needed for testing Entra ID-protected APIs.
 package config
 
 import (
@@ -8,14 +11,14 @@ import (
 
 // Endpoint represents a single API endpoint to test
 type Endpoint struct {
-	Name         string                 `json:"name"`
-	URL          string                 `json:"url"`
-	Method       string                 `json:"method"`
-	ClientID     string                 `json:"clientId"`
-	ClientSecret string                 `json:"clientSecret"`
-	TenantID     string                 `json:"tenantId"`
-	Scope        string                 `json:"scope"`
-	RequestBody  map[string]interface{} `json:"requestBody"`
+	RequestBody  map[string]interface{}
+	Name         string
+	URL          string
+	Method       string
+	ClientID     string
+	ClientSecret string
+	TenantID     string
+	Scope        string
 }
 
 // Config represents the complete configuration
@@ -25,11 +28,16 @@ type Config struct {
 
 // LoadConfig loads the configuration from a JSON file
 func LoadConfig(filePath string) (*Config, error) {
-	file, err := os.Open(filePath)
+	// Open the file
+	file, err := os.Open(filePath) // #nosec G304 - file path is provided by user via CLI flag
 	if err != nil {
 		return nil, fmt.Errorf("failed to open config file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			err = fmt.Errorf("failed to close config file: %w", closeErr)
+		}
+	}()
 
 	var config Config
 	decoder := json.NewDecoder(file)
